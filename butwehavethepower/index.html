@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Union Strike Folk Song</title>
+	<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+	<h1 id="title">Union Strike Folk Song</h1>
+
+	<video src="https://www.cs.tufts.edu/comp/20/butwehavethepower.mp4" id="butwehavethepower" controls></video>
+	<div id="lyrics"></div>
+
+	<script>
+	// Complete this section and create a CSS file named style.css
+		var lyrics = ["Come gather round, children, <br>It\'s high time ye learned", "\'Bout a hero named Homer <br>And a devil named Burns.", "We\'ll march \'till we drop <br>The girls and the fellas.", "We\'ll fight \'till the death <br>Or else fold like umbrellas.", "So we\'ll march day and night <br>By the big cooling tower.", "They have the plant <br>But we have the power.", "Now do \"Classical Gas!\""];
+		var vid = document.getElementById('butwehavethepower');
+		var l = document.getElementById('lyrics');
+
+		vid.addEventListener('timeupdate', function() {
+			if(vid.currentTime > 3 && vid.currentTime < 10){
+			l.innerHTML = lyrics[0];
+		}
+		if(vid.currentTime > 10 && vid.currentTime < 16.5){
+			l.innerHTML = lyrics[1];
+		}
+    	if(vid.currentTime > 16.5 && vid.currentTime < 20.5){
+			l.innerHTML = lyrics[2];
+		}
+    	if(vid.currentTime > 20.5 && vid.currentTime < 27){
+			l.innerHTML = lyrics[3];
+		}
+    	if(vid.currentTime > 27 && vid.currentTime < 37){
+			l.innerHTML = " ";
+		}
+    	if(vid.currentTime > 37 && vid.currentTime < 43){
+			l.innerHTML = lyrics[4];
+		}
+    	if(vid.currentTime > 43.1 && vid.currentTime < 49.5){
+			l.innerHTML = lyrics[5];
+		}
+    	if(vid.currentTime > 49.5 && vid.currentTime < 55){
+			l.innerHTML = lyrics[6];
+		}
+   		if(vid.currentTime > 55 && vid.currentTime < 71){
+			l.innerHTML = " ";
+		}
+    	if(vid.currentTime > 71 && vid.currentTime < 77.5){
+			l.innerHTML = lyrics[4];
+		}
+    	if(vid.currentTime > 77.5 && vid.currentTime < 82){
+			l.innerHTML = lyrics[5];
+		}
+    	if(vid.currentTime > 82 && vid.currentTime < 86){
+			l.innerHTML = lyrics[4];
+		}
+    	if(vid.currentTime > 86 && vid.currentTime < 92){
+			l.innerHTML = lyrics[5];
+		}
+    	if(vid.currentTime > 92){
+			l.innerHTML = " ";
+		}
+		}, false);
+
+	</script>
+</body>
+</html>
