@@ -12,7 +12,7 @@ var wstatus;
 var weiner = false;
 var weinIndex;
 var pic;
-var cont;
+var cont = [];
 var map;
 var marker;
 var content;
@@ -65,8 +65,8 @@ function loadRideInfo(){
 		if(request.readyState == 4 && request.status == 200) {
         	obj = JSON.parse(request.responseText);
         	
-            
           	if (obj.vehicles){
+          		console.log(obj);
 		    	type = "vehicle"; 
 		    	for (count = 0; count < obj.vehicles.length ; count++){
 				usernames[count] = obj.vehicles[count].username;
@@ -88,10 +88,12 @@ function loadRideInfo(){
 					data: obj.vehicles[count].username + " is " + distances[count] + " miles away"
 			    	});
 				mks[count].setMap(map);
-				cont = mks[count].data;
+				cont[count] = mks[count].data;
+				console.log(cont[count]);
 
 				google.maps.event.addListener(mks[count], 'click', function (){
-					info.setContent(cont);
+					console.log(cont[count]);
+					info.setContent(cont[count]);
 					info.open(map, marker);
 			    	});
 		    	}
