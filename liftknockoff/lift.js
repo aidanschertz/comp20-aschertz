@@ -12,10 +12,10 @@ var wstatus;
 var weiner = false;
 var weinIndex;
 var pic;
-var cont = [];
 var map;
 var marker;
 var content;
+var closeIndex = 0;
 myOptions = {
     zoom: 10,
     center: me,
@@ -66,7 +66,6 @@ function loadRideInfo(){
         	obj = JSON.parse(request.responseText);
         	
           	if (obj.vehicles){
-          		console.log(obj);
 		    	type = "vehicle"; 
 		    	for (count = 0; count < obj.vehicles.length ; count++){
 				usernames[count] = obj.vehicles[count].username;
@@ -88,13 +87,10 @@ function loadRideInfo(){
 					data: obj.vehicles[count].username + " is " + distances[count] + " miles away"
 			    	});
 				mks[count].setMap(map);
-				cont[count] = mks[count].data;
-				console.log(cont[count]);
 
-				google.maps.event.addListener(mks[count], 'click', function (){
-					console.log(cont[count]);
-					info.setContent(cont[count]);
-					info.open(map, marker);
+		    	google.maps.event.addListener(mks[count], 'click', function (){
+					info.setContent(this.data);
+					info.open(map, this);
 			    	});
 		    	}
 
@@ -130,8 +126,8 @@ function loadRideInfo(){
 					mks[count].setMap(map);
 
 					google.maps.event.addListener(mks[count], 'click', function (){
-						info.setContent(mks[count].data);
-						info.open(map, marker);
+						info.setContent(this.data);
+						info.open(map, this);
 			    	});
 		    	}
 
@@ -146,9 +142,10 @@ function loadRideInfo(){
             for (count = 0; count < pos.length ; count++){
 				if (distances[count] < minDis){
 		    		minDis = distances[count];
+		    		closeIndex = count;
 				}		
             }
-            content = "User R5zer572:<br> The closest " + type + " is " + minDis + " miles away<br>" + wstatus;
+            content = "User R5zer572:<br> The closest " + type + " is " + usernames[closeIndex] + ", they are " + minDis + " miles away<br>" + wstatus;
         }
     }
     request.send("username=R5zer572&lat="+mylat+"&lng="+mylng);
