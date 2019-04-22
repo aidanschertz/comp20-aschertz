@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Security Assessment</title>
+	<meta charset="utf-8">
+	<link href="simple.css" rel="stylesheet" />
+</head>
+
+<body>
+	<div class ="header">
+	<h1>Security and Privacy Assessment</h1>
+	</div>
+
+	<h2>Introduction</h2>
+		<p>I was hired to perform a security and privacy assessment of a private car service. The product takes a user's username, latitude and longitude and displays the vehicles (if the user is a passenger) or passengers (if they are a vehicle) that checked in in the last three minutes on a map. The heroku app shows a log of when vehicles checked in from most recent to least recent. You can also search for the location and check in time of a specific user if the directory '/passenger.json?username=' is used. </p>
+
+	<h2>Methodology</h2>
+		<p>First, I tried to do some blackbox testing by sending different curl requests to see what the client's program would allow. I was able ot send javascript as the username but not for the latitude or longitude. Next, I looked into BurpSuite. I tried to configure the connection so that I could catch requests and responses and alter them before they are sent back to the browser but nothing would show up in the HTTP history tab. I tried some basic trouble-shooting but was unsuccessful. Since my client added me as a collaborator on their heroku app, I cloned their code to take a look.
+
+		They did not hard code any passwords into their code, avoiding issues with authentification. They also checked that the lat and lngs were numbers to validate inputs.
+
+		I used whitebox testing to manipulate their code and push it back to the heroku app. I couldn't figure out how to do this through a different tool.</p>
+
+	<h2>Abstract of Findings</h2>
+		<p>After analyzing the client's product, I found issues with confidentiality, injection, and cross site scripting. For confidentiality, I was able to attain sensitive data (riders' locations) without having to know their username. Instead of searching for the data from a known username, I changed the query to look for all the usernames that were not 'X' (something I knew would not be a username in the database. I was also able to send usernames to the client's heroku app that were not strings, which inserted data into the database that does not belong there. I successfully sent an image file as the username. This is generally bad practice, since when the username is printed out, it shoud appear as a string, not like an image that doesn't load. I also sent javascript alerts as the username, demonstrating how cross site scripting is an issue. This means the information a user provides to the product is not properly validated and can alter how the product reacts. Another issue is being able to redirect the page by changing the window.location through user input. This is a huge issue, and demostrates why one should never trust user input! Now, if someone were to try to look at all the users' data, they would receive alerts and be redirected to google's XXS game. If I wanted, I could've done this for every username in the database so everyone using the site would be redirected when they tried to look at their data. Finally, I easily added an alert to the main route of the website, since I am now a collaborator. 
+		</p>
+
+	<h2>Issues found</h2>
+	<ol type = "I">
+		<li>Confidentiality and Sensitive Data Exposure</li>
+			<ol type = 'a'>
+				<li>Location: /passenger.json page</li>
+				<li>Severity of issue: High. There is no authentification for who can see all of the passengers' data. This is a huge issue, since riders' locations are being saved. If someone calls this command a moment after a rider's location is documented, the person could easily track the rider.</li>
+				<li>Description: I used /passenger.json?username[$ne]=anything to reveal the records of all passengers</li>
+				<li>Proof: <a href = 'https://evening-harbor-93479.herokuapp.com/passenger.json?username[$ne]=j'>Try it!</a></li>
+				<li>Resolution: The code should check each key and value before returning data, not just check the key since $ne becomes part of the js object.</li>
+			</ol>
+		<li>Database Injection</li>
+			<ol type = 'a'>
+				<li>Location: POST /rides route</li>
+				<li>Severity of issue: Medium. Data that is not a string can be sent as the username. This means could be javascript which can alter the page. This only really affects the /passenger.json page for that username (or for all usernames).</li>
+				<li>Description: I sent curl --data with username set equal to a javascript alert, javascript window location, and set equal to an image, all of which were accepted by the client's product</li>
+				<li>Proof: As seen in the previous flaw, when you navigate to the client's heroku app/passengers.json and look at all the passengers' data, an alert window pops up and you can see image files saved as the usernames. You are then redirected to another page after clearing the alerts.</li>
+				<li>Resolution: The client could replace special characters or user a validator to remove them from the username. </br>
+
+				username = username.replace(/[^\w\s]gi,''); </br>
+				or username = validator.escape(username);</li>
+			</ol>
+		<li>Cross Site Scripting: redirected /passenger.json route</li>
+			<ol type = 'a'>
+				<li>Location: /passenger.json page</li>
+				<li>Severity of issue: High. I easily redirected the page to another site. This redirect could have malicious content or gain data from the user without their consent. It would be a much larger issue if this occurred for every username that was searched.</li>
+				<li>Description: I sent curl --data with the username set equal to a js window.location. Then I loaded the site to look at all passengers' data and was redirected.</li>
+				<li>Proof: Same as above</li>
+				<li>Resolution: Same as above, removing special characters will protect against the user sending script as an input.</li>
+			</ol>
+		<li>Cross Site Scripting: added alert to home page</li>
+			<ol type = 'a'>
+				<li>Location: source code for https://evening-harbor-93479.herokuapp.com/ (line 128)</li>
+				<li>Severity of issue: Low-high. I was only able to do this because I was added as a collaborator on the client's heroku. Therefore, if the client trusts everyone with direct access to their code, this isn't a huge issue. However, if it's possible to alter the code without having to deploy changes to heroku (perhaps through BurpSuite), this is a HUGE issue.</li>
+				<li>Description: I was able to alter and deploy the new code to heroku. I added a script alert to the head of the HTML they created for the main GET route of their heroku app.</li>
+				<li>Proof: <a href = 'https://evening-harbor-93479.herokuapp.com/'>Try it!</a></li>
+				<li>Resolution: Don't share your source code with people you don't trust! Disable editing abilities from as many people as possible to keep your site secure.</li>
+			</ol>
+	</ol>
+
+	<h2>Conclusion</h2>
+	<p>Overall, there are several security issues that the client should focus on fixing: confidentiality, database injection, and cross-site scripting. The examples listed above have fairly easy solutions. There are several other precautions the client might want to take, specificially, encrypting data before sending it to the server. This way, if an attacker tried to intercept through Burp Suite, or another tool, they would have trouble decrypting the data or sending malicious content. Another point the client should consider, is the cost of depending on external products, which could also have security issues. The security of the client's product relies on the security of Heroku and MongoDB. They should weigh the costs and benefits of these dependencies based on the sensitivity of their users' data.</p>
+
+	<h2>References</h2>
+	<p>
+		<a href = 'https://en.wikipedia.org/wiki/Cross-site_scripting'> Wikipedia XSS </a></br>
+		<a href = 'https://xss-game.appspot.com/'> XSS Game</a></br>
+		<a href = 'https://www.w3schools.com/jsref/met_win_alert.asp'> W3schools Window Alert </a></br>
+		<a href = 'https://www.w3schools.com/js/js_window_location.asp'> W3schools Window Location </a></br>
+
+	</p>
+
+</body>
+</html>
