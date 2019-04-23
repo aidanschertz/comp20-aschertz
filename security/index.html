@@ -27,15 +27,15 @@
 
 	<h2>Issues found</h2>
 	<ol type = "I">
-		<li>Confidentiality and Sensitive Data Exposure</li>
+		<li>Confidentiality and Sensitive Data Exposure and Database Injection</li>
 			<ol type = 'a'>
 				<li>Location: /passenger.json page</li>
 				<li>Severity of issue: High. There is no authentification for who can see all of the passengers' data. This is a huge issue, since riders' locations are being saved. If someone calls this command a moment after a rider's location is documented, the person could easily track the rider.</li>
 				<li>Description: I used /passenger.json?username[$ne]=anything to reveal the records of all passengers</li>
-				<li>Proof: <a href = 'https://evening-harbor-93479.herokuapp.com/passenger.json?username[$ne]=j'>Try it!</a></li>
+				<li>Proof: <img src = "secFlaw1.png" alt = "image of security flaw"/></li>
 				<li>Resolution: The code should check each key and value before returning data, not just check the key since $ne becomes part of the js object.</li>
 			</ol>
-		<li>Database Injection</li>
+		<li>Database Injection and Cross Site Scripting</li>
 			<ol type = 'a'>
 				<li>Location: POST /rides route</li>
 				<li>Severity of issue: Medium. Data that is not a string can be sent as the username. This means could be javascript which can alter the page. This only really affects the /passenger.json page for that username (or for all usernames).</li>
@@ -51,7 +51,7 @@
 				<li>Location: /passenger.json page</li>
 				<li>Severity of issue: High. I easily redirected the page to another site. This redirect could have malicious content or gain data from the user without their consent. It would be a much larger issue if this occurred for every username that was searched.</li>
 				<li>Description: I sent curl --data with the username set equal to a js window.location. Then I loaded the site to look at all passengers' data and was redirected.</li>
-				<li>Proof: Same as above</li>
+				<li>Proof: <img src = "secFlaw3.png" alt = "image of security flaw"/></li>
 				<li>Resolution: Same as above, removing special characters will protect against the user sending script as an input.</li>
 			</ol>
 		<li>Cross Site Scripting: added alert to home page</li>
@@ -59,7 +59,7 @@
 				<li>Location: source code for https://evening-harbor-93479.herokuapp.com/ (line 128)</li>
 				<li>Severity of issue: Low-high. I was only able to do this because I was added as a collaborator on the client's heroku. Therefore, if the client trusts everyone with direct access to their code, this isn't a huge issue. However, if it's possible to alter the code without having to deploy changes to heroku (perhaps through BurpSuite), this is a HUGE issue.</li>
 				<li>Description: I was able to alter and deploy the new code to heroku. I added a script alert to the head of the HTML they created for the main GET route of their heroku app.</li>
-				<li>Proof: <a href = 'https://evening-harbor-93479.herokuapp.com/'>Try it!</a></li>
+				<li>Proof: <img src = "secFlaw2.png" alt = "image of security flaw"/></li>
 				<li>Resolution: Don't share your source code with people you don't trust! Disable editing abilities from as many people as possible to keep your site secure.</li>
 			</ol>
 	</ol>
