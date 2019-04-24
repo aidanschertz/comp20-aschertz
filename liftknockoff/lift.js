@@ -56,7 +56,7 @@ function createMap() {
     
 function loadRideInfo(){
     var request = new XMLHttpRequest();
-    var url = 'https://hans-moleman.herokuapp.com/rides';
+    var url = 'https://vast-dawn-43727.herokuapp.com/rides';
     var params = 'orem=ipsum&name=binny';
     request.open('POST', url, true);
     request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
